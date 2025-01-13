@@ -315,3 +315,8 @@ func (ks *KeyStore) Get(key string) ([]byte, error) {
 
 	return nil, ErrNotFound
 }
+
+func (ks *KeyStore) Compact() error {
+
+	return nil
+}
