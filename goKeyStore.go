@@ -8,6 +8,7 @@ import (
 	"github.com/3dev/goKeyStore/file"
 	"io"
 	"os"
+	"path/filepath"
 	"slices"
 )
 
@@ -38,6 +39,14 @@ var (
 )
 
 func New(filename string, passkey string) (*KeyStore, error) {
+
+	ext := filepath.Ext(filename)
+
+	// If there's no extension, add ".gks"
+	if ext == "" {
+		filename += ".gks"
+	}
+
 	f, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
 		return nil, err
