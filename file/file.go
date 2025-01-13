@@ -6,6 +6,7 @@ import (
 
 const (
 	HeaderSize = (41 * 1024) + 4
+	IndexSize  = 1024
 )
 
 type (
@@ -44,24 +45,23 @@ func (fHdr *FileHeader) Bytes() []byte {
 	return buff.Bytes()
 }
 
-func (fIdx *FileIndex) Decode(data []byte) error {
+func (fIdx *FileIndex) Decode(rd *bytes.Reader) error {
 
 	var err error
 
-	buff := bytes.NewReader(data)
-	fIdx.Available, err = buff.ReadByte()
+	fIdx.Available, err = rd.ReadByte()
 	if err != nil {
 		return err
 	}
-	_, err = buff.Read(fIdx.Key[:])
+	_, err = rd.Read(fIdx.Key[:])
 	if err != nil {
 		return err
 	}
-	_, err = buff.Read(fIdx.Length[:])
+	_, err = rd.Read(fIdx.Length[:])
 	if err != nil {
 		return err
 	}
-	_, err = buff.Read(fIdx.Location[:])
+	_, err = rd.Read(fIdx.Location[:])
 	if err != nil {
 		return err
 	}
@@ -69,7 +69,26 @@ func (fIdx *FileIndex) Decode(data []byte) error {
 	return nil
 }
 
-func (fHdr *FileHeader) Decode(data []byte) error {
+func (fHdr *FileHeader) Decode(data []byte) (int, error) {
 
-	return nil
+	var err error
+
+	buff := bytes.NewReader(data)
+	_, err = buff.Read(fHdr.CheckDigit[:])
+	if err != nil {
+		return 0, err
+	}
+
+	c := 0
+	for i := 0; i < IndexSize; i++ {
+		err = fHdr.Index[i].Decode(buff)
+		if err != nil {
+			return 0, err
+		}
+		if fHdr.Index[i].Available > 0 {
+			c++
+		}
+	}
+
+	return c, nil
 }
