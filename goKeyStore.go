@@ -8,6 +8,7 @@ import (
 	"goKeyStore/file"
 	"io"
 	"os"
+	"slices"
 )
 
 type (
@@ -23,7 +24,7 @@ const (
 	IndexSize       = 1024
 	FirstContentPos = file.HeaderSize
 	IndexStartPos   = 4
-	IndexItemSize   = 41
+	IndexItemSize   = 45
 )
 
 var (
@@ -32,6 +33,8 @@ var (
 	ErrFormattingKeyStore    = errors.New("formatting keystore failed")
 	ErrKeyStoreFull          = errors.New("keystore full")
 	ErrKeyTooLarge           = errors.New("key is too large")
+	ErrNotFound              = errors.New("key not found")
+	ErrDuplicateKey          = errors.New("duplicate key")
 )
 
 func New(filename string, passkey string) (*KeyStore, error) {
@@ -169,10 +172,14 @@ func (ks *KeyStore) Put(key string, data []byte) error {
 		return ErrKeyStoreFull
 	}
 
+	if slices.Contains(ks.Keys(), key) {
+		return ErrDuplicateKey
+	}
+
 	//find a free index
 	filePos := uint32(FirstContentPos)
 	for i := 0; i < IndexSize; i++ {
-		l := binary.BigEndian.Uint32(ks.fileHeader.Index[i].Length[:])
+		l := binary.BigEndian.Uint32(ks.fileHeader.Index[i].AllocatedLength[:])
 		if ks.fileHeader.Index[i].Available < 1 {
 
 			if l < 1 { //it is unused and the next available spot
@@ -182,7 +189,8 @@ func (ks *KeyStore) Put(key string, data []byte) error {
 				}
 				copy(ks.fileHeader.Index[i].Key[:], k)
 				ks.fileHeader.Index[i].Available = 1
-				binary.BigEndian.PutUint32(ks.fileHeader.Index[i].Length[:], uint32(len(data)))
+				binary.BigEndian.PutUint32(ks.fileHeader.Index[i].DataLength[:], uint32(len(data)))
+				binary.BigEndian.PutUint32(ks.fileHeader.Index[i].AllocatedLength[:], uint32(len(data)))
 				binary.BigEndian.PutUint32(ks.fileHeader.Index[i].Location[:], filePos)
 				_, err = ks.keyStoreFile.Seek(int64(filePos), io.SeekStart)
 				if err != nil {
@@ -220,7 +228,7 @@ func (ks *KeyStore) Put(key string, data []byte) error {
 				}
 				copy(ks.fileHeader.Index[i].Key[:], k)
 				ks.fileHeader.Index[i].Available = 1
-				//binary.BigEndian.PutUint32(ks.fileHeader.Index[i].Length[:], uint32(len(data)))
+				binary.BigEndian.PutUint32(ks.fileHeader.Index[i].DataLength[:], uint32(len(data)))
 				//binary.BigEndian.PutUint32(ks.fileHeader.Index[i].Location[:], filePos)
 				_, err = ks.keyStoreFile.Seek(int64(binary.BigEndian.Uint32(ks.fileHeader.Index[i].Location[:])), io.SeekStart)
 				if err != nil {
@@ -255,6 +263,55 @@ func (ks *KeyStore) Put(key string, data []byte) error {
 	return nil
 }
 
+func (ks *KeyStore) Delete(key string) error {
+
+	for i := 0; i < IndexSize; i++ {
+		if ks.fileHeader.Index[i].Available > 0 {
+			ksKey := string(bytes.TrimRight(ks.fileHeader.Index[i].Key[:], string([]byte{0})))
+			if ksKey == key {
+				ks.fileHeader.Index[i].Available = 0
+				_, err := ks.keyStoreFile.Seek(int64(IndexStartPos+(i*IndexItemSize)), io.SeekStart)
+				if err != nil {
+					return err
+				}
+				_, err = ks.keyStoreFile.Write(ks.fileHeader.Index[i].Bytes())
+				if err != nil {
+					return err
+				}
+				err = ks.keyStoreFile.Sync()
+				if err != nil {
+					return err
+				}
+
+				return nil
+			}
+		}
+	}
+
+	return ErrNotFound
+}
+
 func (ks *KeyStore) Get(key string) ([]byte, error) {
-	return nil, nil
+
+	for i := 0; i < IndexSize; i++ {
+		if ks.fileHeader.Index[i].Available > 0 {
+			ksKey := string(bytes.TrimRight(ks.fileHeader.Index[i].Key[:], string([]byte{0})))
+			if ksKey == key {
+				dataLen := binary.BigEndian.Uint32(ks.fileHeader.Index[i].DataLength[:])
+				data := make([]byte, dataLen)
+				_, err := ks.keyStoreFile.Seek(int64(binary.BigEndian.Uint32(ks.fileHeader.Index[i].Location[:])), io.SeekStart)
+				if err != nil {
+					return nil, err
+				}
+				_, err = ks.keyStoreFile.Read(data)
+				if err != nil {
+					return nil, err
+				}
+
+				return data, nil
+			}
+		}
+	}
+
+	return nil, ErrNotFound
 }

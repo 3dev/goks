@@ -9,18 +9,18 @@ import "github.com/stretchr/testify/assert"
 
 func TestOpen(t *testing.T) {
 
-	ks, err := Open("nonexistenfile.goKey", "fakepasskey")
+	ks, err := Open("nonexistenfile.goKS", "fakepasskey")
 	assert.Nil(t, ks)
 	assert.Error(t, err)
 }
 
 func TestCreate(t *testing.T) {
 
-	ks, err := New("test1.goKey", "test1passkey")
+	ks, err := New("test1.goKS", "test1passkey")
 	assert.NotNil(t, ks)
 	assert.NoError(t, err)
 
-	ks, err = Open("test1.goKey", "test1passkey")
+	ks, err = Open("test1.goKS", "test1passkey")
 	assert.Nil(t, err)
 	assert.NotNil(t, ks)
 	assert.Equal(t, 0, ks.Count())
@@ -28,7 +28,7 @@ func TestCreate(t *testing.T) {
 
 func TestPut(t *testing.T) {
 
-	ks, err := New("test2.goKey", "test2passkey")
+	ks, err := New("test2.goKS", "test2passkey")
 	assert.NotNil(t, ks)
 	assert.NoError(t, err)
 
@@ -63,4 +63,42 @@ gv+NyO14VaJIMazvGLk=
 	fmt.Println(hex.Dump(ks.fileHeader.Bytes()))
 
 	fmt.Println(ks.Keys())
+}
+
+func TestDelete(t *testing.T) {
+
+	ks, err := New("test3.goKS", "test3passkey")
+	assert.NotNil(t, ks)
+	assert.NoError(t, err)
+
+	err = ks.Put("Data_1", []byte("DATA_1 DATA_1 DATA_1 DATA_1 DATA_1 DATA_1 DATA_1 DATA_1 DATA_1 DATA_1 DATA_1 DATA_1 DATA_1 DATA_1 DATA_1 DATA_1 "))
+	assert.NoError(t, err)
+	err = ks.Put("Data_2", []byte("DATA_2 DATA_2 DATA_2 DATA_2 DATA_2 DATA_2 DATA_2 DATA_2 DATA_2 DATA_2 DATA_2 DATA_2 DATA_2 DATA_2 DATA_2 DATA_2 "))
+	assert.NoError(t, err)
+	err = ks.Put("Data_3", []byte("DATA_3 DATA_3 DATA_3 DATA_3 DATA_3 DATA_3 DATA_3 DATA_3 DATA_3 DATA_3 DATA_3 DATA_3 DATA_3 DATA_3 DATA_3 DATA_3 "))
+	assert.NoError(t, err)
+	err = ks.Put("Data_4", []byte("DATA_4 DATA_4 DATA_4 DATA_4 DATA_4 DATA_4 DATA_4 DATA_4 DATA_4 DATA_4 DATA_4 DATA_4 DATA_4 DATA_4 DATA_4 DATA_4 "))
+	assert.NoError(t, err)
+
+	err = ks.Delete("Data_2")
+	assert.NoError(t, err)
+}
+
+func TestAddToDeletedSpace(t *testing.T) {
+	ks, err := Open("test3.goKS", "test3passkey")
+	assert.NotNil(t, ks)
+	assert.NoError(t, err)
+
+	err = ks.Put("NEW_KEY", []byte("NEW DATA NEW DATA NEW DATA NEW DATA NEW DATA "))
+	assert.NoError(t, err)
+}
+
+func TestGet(t *testing.T) {
+	ks, err := Open("test3.goKS", "test3passkey")
+	assert.NotNil(t, ks)
+	assert.NoError(t, err)
+	data, err := ks.Get("NEW_KEY")
+	assert.NoError(t, err)
+	assert.NotNil(t, data)
+	fmt.Println(string(data))
 }

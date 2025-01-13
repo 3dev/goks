@@ -5,16 +5,17 @@ import (
 )
 
 const (
-	HeaderSize = (41 * 1024) + 4
+	HeaderSize = (45 * 1024) + 4
 	IndexSize  = 1024
 )
 
 type (
 	FileIndex struct {
-		Available byte
-		Key       [32]byte
-		Length    [4]byte
-		Location  [4]byte
+		Available       byte
+		Key             [32]byte
+		DataLength      [4]byte
+		AllocatedLength [4]byte
+		Location        [4]byte
 	}
 
 	FileHeader struct {
@@ -28,7 +29,8 @@ func (fIdx *FileIndex) Bytes() []byte {
 	buff := bytes.Buffer{}
 	buff.WriteByte(fIdx.Available)
 	buff.Write(fIdx.Key[:])
-	buff.Write(fIdx.Length[:])
+	buff.Write(fIdx.DataLength[:])
+	buff.Write(fIdx.AllocatedLength[:])
 	buff.Write(fIdx.Location[:])
 
 	return buff.Bytes()
@@ -57,7 +59,11 @@ func (fIdx *FileIndex) Decode(rd *bytes.Reader) error {
 	if err != nil {
 		return err
 	}
-	_, err = rd.Read(fIdx.Length[:])
+	_, err = rd.Read(fIdx.DataLength[:])
+	if err != nil {
+		return err
+	}
+	_, err = rd.Read(fIdx.AllocatedLength[:])
 	if err != nil {
 		return err
 	}
