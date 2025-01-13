@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"encoding/binary"
 	"errors"
-	"goKeyStore/crypt"
-	"goKeyStore/file"
+	"github.com/3dev/goKeyStore/crypt"
+	"github.com/3dev/goKeyStore/file"
 	"io"
 	"os"
 	"slices"
@@ -21,10 +21,10 @@ type (
 )
 
 const (
-	IndexSize       = 1024
-	FirstContentPos = file.HeaderSize
-	IndexStartPos   = 4
-	IndexItemSize   = 45
+	TblContentSize     = 1024
+	FirstContentPos    = file.HeaderSize
+	TblContentStartPos = 4
+	TblContentItemSize = 45
 )
 
 var (
@@ -148,7 +148,7 @@ func (ks *KeyStore) Keys() []string {
 
 	keys := make([]string, ks.itemCount)
 	iKeys := 0
-	for i := 0; i < IndexSize; i++ {
+	for i := 0; i < TblContentSize; i++ {
 		if ks.fileHeader.Index[i].Available > 0 {
 			keys[iKeys] = string(bytes.TrimRight(ks.fileHeader.Index[i].Key[:], string([]byte{0})))
 			iKeys++
@@ -168,7 +168,7 @@ func bytesPad(s string, maxBytes int) ([]byte, error) {
 
 func (ks *KeyStore) Put(key string, data []byte) error {
 
-	if ks.itemCount >= IndexSize {
+	if ks.itemCount >= TblContentSize {
 		return ErrKeyStoreFull
 	}
 
@@ -178,7 +178,7 @@ func (ks *KeyStore) Put(key string, data []byte) error {
 
 	//find a free index
 	filePos := uint32(FirstContentPos)
-	for i := 0; i < IndexSize; i++ {
+	for i := 0; i < TblContentSize; i++ {
 		l := binary.BigEndian.Uint32(ks.fileHeader.Index[i].AllocatedLength[:])
 		if ks.fileHeader.Index[i].Available < 1 {
 
@@ -202,7 +202,7 @@ func (ks *KeyStore) Put(key string, data []byte) error {
 				}
 
 				//write the index
-				_, err = ks.keyStoreFile.Seek(int64(IndexStartPos+(i*IndexItemSize)), io.SeekStart)
+				_, err = ks.keyStoreFile.Seek(int64(TblContentStartPos+(i*TblContentItemSize)), io.SeekStart)
 				if err != nil {
 					return err
 				}
@@ -240,7 +240,7 @@ func (ks *KeyStore) Put(key string, data []byte) error {
 				}
 
 				//write the index
-				_, err = ks.keyStoreFile.Seek(int64(IndexStartPos+(i*IndexItemSize)), io.SeekStart)
+				_, err = ks.keyStoreFile.Seek(int64(TblContentStartPos+(i*TblContentItemSize)), io.SeekStart)
 				if err != nil {
 					return err
 				}
@@ -265,12 +265,12 @@ func (ks *KeyStore) Put(key string, data []byte) error {
 
 func (ks *KeyStore) Delete(key string) error {
 
-	for i := 0; i < IndexSize; i++ {
+	for i := 0; i < TblContentSize; i++ {
 		if ks.fileHeader.Index[i].Available > 0 {
 			ksKey := string(bytes.TrimRight(ks.fileHeader.Index[i].Key[:], string([]byte{0})))
 			if ksKey == key {
 				ks.fileHeader.Index[i].Available = 0
-				_, err := ks.keyStoreFile.Seek(int64(IndexStartPos+(i*IndexItemSize)), io.SeekStart)
+				_, err := ks.keyStoreFile.Seek(int64(TblContentStartPos+(i*TblContentItemSize)), io.SeekStart)
 				if err != nil {
 					return err
 				}
@@ -293,7 +293,7 @@ func (ks *KeyStore) Delete(key string) error {
 
 func (ks *KeyStore) Get(key string) ([]byte, error) {
 
-	for i := 0; i < IndexSize; i++ {
+	for i := 0; i < TblContentSize; i++ {
 		if ks.fileHeader.Index[i].Available > 0 {
 			ksKey := string(bytes.TrimRight(ks.fileHeader.Index[i].Key[:], string([]byte{0})))
 			if ksKey == key {

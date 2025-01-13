@@ -9,18 +9,18 @@ import "github.com/stretchr/testify/assert"
 
 func TestOpen(t *testing.T) {
 
-	ks, err := Open("nonexistenfile.goKS", "fakepasskey")
+	ks, err := Open("nonexistenfile.gks", "fakepasskey")
 	assert.Nil(t, ks)
 	assert.Error(t, err)
 }
 
 func TestCreate(t *testing.T) {
 
-	ks, err := New("test1.goKS", "test1passkey")
+	ks, err := New("test1.gks", "test1passkey")
 	assert.NotNil(t, ks)
 	assert.NoError(t, err)
 
-	ks, err = Open("test1.goKS", "test1passkey")
+	ks, err = Open("test1.gks", "test1passkey")
 	assert.Nil(t, err)
 	assert.NotNil(t, ks)
 	assert.Equal(t, 0, ks.Count())
@@ -28,7 +28,7 @@ func TestCreate(t *testing.T) {
 
 func TestPut(t *testing.T) {
 
-	ks, err := New("test2.goKS", "test2passkey")
+	ks, err := New("test2.gks", "test2passkey")
 	assert.NotNil(t, ks)
 	assert.NoError(t, err)
 
@@ -67,7 +67,7 @@ gv+NyO14VaJIMazvGLk=
 
 func TestDelete(t *testing.T) {
 
-	ks, err := New("test3.goKS", "test3passkey")
+	ks, err := New("test3.gks", "test3passkey")
 	assert.NotNil(t, ks)
 	assert.NoError(t, err)
 
@@ -85,7 +85,7 @@ func TestDelete(t *testing.T) {
 }
 
 func TestAddToDeletedSpace(t *testing.T) {
-	ks, err := Open("test3.goKS", "test3passkey")
+	ks, err := Open("test3.gks", "test3passkey")
 	assert.NotNil(t, ks)
 	assert.NoError(t, err)
 
@@ -94,7 +94,7 @@ func TestAddToDeletedSpace(t *testing.T) {
 }
 
 func TestGet(t *testing.T) {
-	ks, err := Open("test3.goKS", "test3passkey")
+	ks, err := Open("test3.gks", "test3passkey")
 	assert.NotNil(t, ks)
 	assert.NoError(t, err)
 	data, err := ks.Get("NEW_KEY")

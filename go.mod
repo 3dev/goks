@@ -1,4 +1,4 @@
-module goKeyStore
+module github.com/3dev/goKeyStore
 
 go 1.23
 
