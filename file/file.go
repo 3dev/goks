@@ -5,12 +5,12 @@ import (
 )
 
 const (
-	HeaderSize = (45 * 1024) + 4
-	IndexSize  = 1024
+	HeaderSize     = (45 * 1024) + 4
+	TblContentSize = 1024
 )
 
 type (
-	FileIndex struct {
+	TableOfContent struct {
 		Available       byte
 		Key             [32]byte
 		DataLength      [4]byte
@@ -20,11 +20,11 @@ type (
 
 	FileHeader struct {
 		CheckDigit [4]byte
-		Index      [1024]FileIndex
+		Index      [1024]TableOfContent
 	}
 )
 
-func (fIdx *FileIndex) Bytes() []byte {
+func (fIdx *TableOfContent) Bytes() []byte {
 
 	buff := bytes.Buffer{}
 	buff.WriteByte(fIdx.Available)
@@ -47,7 +47,7 @@ func (fHdr *FileHeader) Bytes() []byte {
 	return buff.Bytes()
 }
 
-func (fIdx *FileIndex) Decode(rd *bytes.Reader) error {
+func (fIdx *TableOfContent) Decode(rd *bytes.Reader) error {
 
 	var err error
 
@@ -86,7 +86,7 @@ func (fHdr *FileHeader) Decode(data []byte) (int, error) {
 	}
 
 	c := 0
-	for i := 0; i < IndexSize; i++ {
+	for i := 0; i < TblContentSize; i++ {
 		err = fHdr.Index[i].Decode(buff)
 		if err != nil {
 			return 0, err

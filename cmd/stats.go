@@ -4,20 +4,18 @@ import (
 	"fmt"
 	"github.com/3dev/goKeyStore"
 	"github.com/spf13/cobra"
-	"os"
 	"path/filepath"
 )
 
-func buildCreateCommand(rootCmd *cobra.Command) {
+func buildStatsCommand(rootCmd *cobra.Command) {
 
 	var passkey string
 	var filename string
-	var overwrite bool
 
 	var createCmd = &cobra.Command{
-		Use:   "create",
-		Short: "creates a new go keystore file",
-		Long:  "crates a new go keystore file",
+		Use:   "stats",
+		Short: "provides the statistic of the go keystore file",
+		Long:  "displays statistics regarding the go keystore file",
 		Run: func(cmd *cobra.Command, args []string) {
 
 			ext := filepath.Ext(filename)
@@ -27,26 +25,20 @@ func buildCreateCommand(rootCmd *cobra.Command) {
 				filename += ".gks"
 			}
 
-			_, err := os.Stat(filename)
-			if !os.IsNotExist(err) && !overwrite {
-				fmt.Printf("'%s' already exists, use --overwrite flag to overwrite the file\n", filename)
-				return
-			}
-
-			_, err = goKeyStore.New(filename, passkey)
+			_, err := goKeyStore.Open(filename, passkey)
 			if err != nil {
 				fmt.Println(err)
 				return
 			}
 
-			fmt.Printf("Created go keystore file '%s' successfully\n", filename)
+			fmt.Printf("go keystore file '%s' statistics \n", filename)
 		},
 	}
 
 	// Add flags to the config command
 	createCmd.Flags().StringVar(&passkey, "passkey", "", "keystore access passkey")
 	createCmd.Flags().StringVar(&filename, "file", "", "filename for the  keystore")
-	createCmd.Flags().BoolVar(&overwrite, "overwrite", false, "overwrite the keystore file")
+
 	_ = createCmd.MarkFlagRequired("passkey")
 	_ = createCmd.MarkFlagRequired("file")
 

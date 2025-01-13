@@ -15,6 +15,8 @@ func main() {
 	}
 
 	buildVersionCommand(rootCmd)
+	buildCreateCommand(rootCmd)
+	buildStatsCommand(rootCmd)
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
