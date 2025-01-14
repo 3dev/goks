@@ -24,7 +24,7 @@ func buildCreateCommand(rootCmd *cobra.Command) {
 
 			// If there's no extension, add ".gks"
 			if ext == "" {
-				filename += ".gks"
+				filename += ".goks"
 			}
 
 			_, err := os.Stat(filename)
