@@ -35,7 +35,7 @@ func buildCreateCommand(rootCmd *cobra.Command) {
 
 			_, err = goKeyStore.New(filename, passkey)
 			if err != nil {
-				fmt.Println(err)
+				fmt.Printf("error creating go keystore file (%s): %v", filename, err)
 				return
 			}
 
