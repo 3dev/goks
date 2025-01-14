@@ -27,7 +27,7 @@ func buildHexCommand(rootCmd *cobra.Command) {
 			}
 
 			if !slices.Contains(ks.Keys(), key) {
-				fmt.Printf("key '%s' not found in keystore(%s)\n", filename, key)
+				fmt.Printf("key '%s' not found in keystore(%s)\n", key, filename)
 				return
 			}
 
