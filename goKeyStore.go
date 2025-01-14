@@ -44,7 +44,7 @@ func New(filename string, passkey string) (*KeyStore, error) {
 
 	// If there's no extension, add ".gks"
 	if ext == "" {
-		filename += ".gks"
+		filename += ".goks"
 	}
 
 	f, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
@@ -323,6 +323,20 @@ func (ks *KeyStore) Get(key string) ([]byte, error) {
 	}
 
 	return nil, ErrNotFound
+}
+
+func (ks *KeyStore) KeyInfo(key string) (file.TableOfContent, error) {
+
+	for i := 0; i < TblContentSize; i++ {
+		if ks.fileHeader.Index[i].Available > 0 {
+			ksKey := string(bytes.TrimRight(ks.fileHeader.Index[i].Key[:], string([]byte{0})))
+			if ksKey == key {
+				return ks.fileHeader.Index[i], nil
+			}
+		}
+	}
+
+	return file.TableOfContent{}, ErrNotFound
 }
 
 func (ks *KeyStore) Compact() error {
