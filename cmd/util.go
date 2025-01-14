@@ -1,11 +1,11 @@
 package main
 
 import (
-	"github.com/3dev/goKeyStore"
+	"github.com/3dev/goks"
 	"path/filepath"
 )
 
-func openKeyStore(filename string, passkey string) (*goKeyStore.KeyStore, error) {
+func openKeyStore(filename string, passkey string) (*goks.KeyStore, error) {
 
 	ext := filepath.Ext(filename)
 
@@ -14,7 +14,7 @@ func openKeyStore(filename string, passkey string) (*goKeyStore.KeyStore, error)
 		filename += ".goks"
 	}
 
-	ks, err := goKeyStore.Open(filename, passkey)
+	ks, err := goks.Open(filename, passkey)
 	if err != nil {
 		return nil, err
 	}

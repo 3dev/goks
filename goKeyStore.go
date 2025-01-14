@@ -1,11 +1,11 @@
-package goKeyStore
+package goks
 
 import (
 	"bytes"
 	"encoding/binary"
 	"errors"
-	"github.com/3dev/goKeyStore/internal/crypt"
-	"github.com/3dev/goKeyStore/internal/file"
+	"github.com/3dev/goks/internal/crypt"
+	"github.com/3dev/goks/internal/file"
 	"io"
 	"os"
 	"path/filepath"

@@ -17,7 +17,7 @@ func buildVersionCommand(rootCmd *cobra.Command) {
 		Short: "Show the version",
 		Long:  "Show the version",
 		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Printf("goKeyStore version is '%s'\n", strings.TrimSpace(version))
+			fmt.Printf("goks version is '%s'\n", strings.TrimSpace(version))
 		},
 	}
 

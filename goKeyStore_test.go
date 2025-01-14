@@ -1,4 +1,4 @@
-package goKeyStore
+package goks
 
 import (
 	"encoding/hex"

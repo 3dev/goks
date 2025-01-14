@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/3dev/goKeyStore"
+	"github.com/3dev/goks"
 	"github.com/spf13/cobra"
 	"os"
 	"path/filepath"
@@ -33,7 +33,7 @@ func buildCreateCommand(rootCmd *cobra.Command) {
 				return
 			}
 
-			_, err = goKeyStore.New(filename, passkey)
+			_, err = goks.New(filename, passkey)
 			if err != nil {
 				fmt.Printf("error creating go keystore file (%s): %v", filename, err)
 				return
@@ -44,10 +44,10 @@ func buildCreateCommand(rootCmd *cobra.Command) {
 	}
 
 	// Add flags to the config command
-	createCmd.Flags().StringVar(&passkey, "passkey", "", "keystore access passkey")
+	createCmd.Flags().StringVar(&passkey, "pass", "", "keystore access password")
 	createCmd.Flags().StringVar(&filename, "file", "", "filename for the  keystore")
 	createCmd.Flags().BoolVar(&overwrite, "overwrite", false, "overwrite the keystore file")
-	_ = createCmd.MarkFlagRequired("passkey")
+	_ = createCmd.MarkFlagRequired("pass")
 	_ = createCmd.MarkFlagRequired("file")
 
 	rootCmd.AddCommand(createCmd)

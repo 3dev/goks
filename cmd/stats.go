@@ -56,11 +56,11 @@ func buildStatsCommand(rootCmd *cobra.Command) {
 	}
 
 	// Add flags to the config command
-	createCmd.Flags().StringVar(&passkey, "passkey", "", "keystore access passkey")
+	createCmd.Flags().StringVar(&passkey, "pass", "", "keystore access password")
 	createCmd.Flags().StringVar(&filename, "file", "", "filename for the  keystore")
 	createCmd.Flags().StringVar(&key, "key", "", "get details for the key")
 
-	_ = createCmd.MarkFlagRequired("passkey")
+	_ = createCmd.MarkFlagRequired("pass")
 	_ = createCmd.MarkFlagRequired("file")
 
 	rootCmd.AddCommand(createCmd)
