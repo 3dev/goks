@@ -92,6 +92,17 @@ func (ks *KeyStore) Close() error {
 	return ks.keyStoreFile.Close()
 }
 
+func (ks *KeyStore) encryptData(data []byte) ([]byte, error) {
+
+	key, _ := crypt.PadAESKey([]byte(ks.passkey))
+	return crypt.EncryptAESECB(key, data)
+}
+
+func (ks *KeyStore) decryptData(data []byte) ([]byte, error) {
+	key, _ := crypt.PadAESKey([]byte(ks.passkey))
+	return crypt.DecryptAESECB(key, data)
+}
+
 func (ks *KeyStore) validatePasskey(passkey string) error {
 
 	fileCheckDigit := make([]byte, 4)
@@ -175,7 +186,7 @@ func bytesPad(s string, maxBytes int) ([]byte, error) {
 	return append([]byte(s), bytes.Repeat([]byte{0}, maxBytes-len(s))...), nil
 }
 
-func (ks *KeyStore) Put(key string, data []byte) error {
+func (ks *KeyStore) Put(key string, plainData []byte) error {
 
 	if ks.itemCount >= TblContentSize {
 		return ErrKeyStoreFull
@@ -183,6 +194,11 @@ func (ks *KeyStore) Put(key string, data []byte) error {
 
 	if slices.Contains(ks.Keys(), key) {
 		return ErrDuplicateKey
+	}
+
+	data, err := ks.encryptData(plainData)
+	if err != nil {
+		return err
 	}
 
 	//find a free index
@@ -317,7 +333,7 @@ func (ks *KeyStore) Get(key string) ([]byte, error) {
 					return nil, err
 				}
 
-				return data, nil
+				return ks.decryptData(data)
 			}
 		}
 	}
