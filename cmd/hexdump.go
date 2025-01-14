@@ -22,12 +22,12 @@ func buildHexCommand(rootCmd *cobra.Command) {
 
 			ks, err := openKeyStore(filename, passkey)
 			if err != nil {
-				fmt.Printf("unable to open keystore: %v\n", err)
+				fmt.Printf("unable to open keystore(%s): %v\n", filename, err)
 				return
 			}
 
 			if !slices.Contains(ks.Keys(), key) {
-				fmt.Printf("key '%s' not found in keystore\n", key)
+				fmt.Printf("key '%s' not found in keystore(%s)\n", filename, key)
 				return
 			}
 

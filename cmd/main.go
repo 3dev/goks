@@ -9,7 +9,7 @@ import (
 func main() {
 
 	rootCmd := &cobra.Command{
-		Use:   "goKeyStore",
+		Use:   "goks",
 		Short: "A tool create, display and manage encrypted content",
 		Long:  "This tool provides commands to generate/inspect/modify a golang keystore basically storing key=value.",
 	}

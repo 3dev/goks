@@ -1,5 +1,5 @@
 # Variables
-APP_NAME := goKeyStore
+APP_NAME := goks
 SRC_DIR := ./cmd/
 BUILD_DIR := build
 GO_FILES := $(shell find ./cmd/ -name '*.go')
