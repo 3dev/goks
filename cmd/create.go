@@ -1,8 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"github.com/3dev/goks"
+	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 	"os"
 	"path/filepath"
@@ -29,17 +29,17 @@ func buildCreateCommand(rootCmd *cobra.Command) {
 
 			_, err := os.Stat(filename)
 			if !os.IsNotExist(err) && !overwrite {
-				fmt.Printf("'%s' already exists, use --overwrite flag to overwrite the file\n", filename)
+				color.Red("'%s' already exists, use --overwrite flag to overwrite the file\n", filename)
 				return
 			}
 
 			_, err = goks.New(filename, passkey)
 			if err != nil {
-				fmt.Printf("error creating go keystore file (%s): %v", filename, err)
+				color.Red("error creating go keystore file (%s): %v", filename, err)
 				return
 			}
 
-			fmt.Printf("Created go keystore file '%s' successfully\n", filename)
+			color.Cyan("Created go keystore file '%s' successfully\n", filename)
 		},
 	}
 

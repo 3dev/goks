@@ -4,6 +4,7 @@ import (
 	"encoding/binary"
 	"encoding/hex"
 	"fmt"
+	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 	"slices"
 )
@@ -22,18 +23,18 @@ func buildHexCommand(rootCmd *cobra.Command) {
 
 			ks, err := openKeyStore(filename, passkey)
 			if err != nil {
-				fmt.Printf("unable to open keystore(%s): %v\n", filename, err)
+				color.Red("unable to open keystore(%s): %v\n", filename, err)
 				return
 			}
 
 			if !slices.Contains(ks.Keys(), key) {
-				fmt.Printf("key '%s' not found in keystore(%s)\n", key, filename)
+				color.Red("key '%s' not found in keystore(%s)\n", key, filename)
 				return
 			}
 
 			kInfo, err := ks.KeyInfo(key)
 			if err != nil {
-				fmt.Printf("unable to get key info: %v\n", err)
+				color.Red("unable to get key info: %v\n", err)
 			}
 
 			fmt.Println()
@@ -46,13 +47,13 @@ func buildHexCommand(rootCmd *cobra.Command) {
 
 			data, err := ks.Get(key)
 			if err != nil {
-				fmt.Printf("unable to get key: %v\n", err)
+				color.Red("unable to get key: %v\n", err)
 				return
 			}
 
 			fmt.Println()
 			fmt.Printf("data:\n")
-			fmt.Printf("%s\n", hex.Dump(data))
+			color.Cyan("%s\n", hex.Dump(data))
 
 		},
 	}

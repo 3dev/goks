@@ -8,9 +8,9 @@ goks (go keystore) is a simple keystore file library and command line tool.
 
 It is suitable for use in any situation where you would consider having a keystore
 that stores content securely using a password. The file is simple a key-value
-store but its content is encrypted using the provided password. The present 
-implementation can store up to 1024 key-value pair securely in the keystore file. 
-Each key can have a maximum of 32 bytes and the value can be of any length.
+store with its content encrypted using AES and the provided password as the encryption key. 
+The present implementation can store up to 1024 key-value pair securely in the keystore file. 
+Each key can have a maximum length of 32 bytes and the value can be of any length.
 
 
 ## goks Features
@@ -131,6 +131,17 @@ data:
 00000050  41 5f 31 20 44 41 54 41  5f 31 20 44 41 54 41 5f  |A_1 DATA_1 DATA_|
 00000060  31 20 44 41 54 41 5f 31  20 44 41 54 41 5f 31 20  |1 DATA_1 DATA_1 |
 ```
+```aiignore
+goks add --file sample1.goks --pass Z2l2ZW1lYWp3dGdvb2RzZWNyZXRrZX --key key_1 --value="this is the value of key_1"
+```
+The above command will add the content of ```--value``` into the keystore under key ```key_1```; in this example 
+```this is the value of key_1``` will be stored under ```key_1```
+```aiignore
+goks add --file sample1.goks --pass Z2l2ZW1lYWp3dGdvb2RzZWNyZXRrZX --key key_50 --value=file=server.crt
+```
+In the above example ```--value=file=server.crt``` will store the content of ```server.crt``` into the keystore
+under the key ```key_50```
+
 
 ## License
 

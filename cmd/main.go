@@ -18,6 +18,7 @@ func main() {
 	buildCreateCommand(rootCmd)
 	buildStatsCommand(rootCmd)
 	buildHexCommand(rootCmd)
+	buildAddCommand(rootCmd)
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
